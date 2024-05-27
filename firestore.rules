@@ -1,4 +1,4 @@
-rules_version = '2';
+rules_version = '3';
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -8,6 +8,9 @@ service cloud.firestore {
     match /approvedUsers/{document=**} {
       allow read: if true;
       allow write: if false;
+    }
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.token.email == resource.data.email;
     }
   }
 }

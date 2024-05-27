@@ -1,72 +1,68 @@
 <script lang="ts">
-	import { FirebaseError } from 'firebase/app';
-	import {
-		createUserWithEmailAndPassword,
-		signInWithEmailAndPassword,
-		signInWithRedirect
-	} from 'firebase/auth';
-	import { auth, provider } from '$lib/firebase';
+	import { onMount } from 'svelte';
+	import { auth, db } from '$lib/firebase';
+	import { collection, getDocs } from 'firebase/firestore';
+	import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+	import { P, Heading, Card, Button, DarkMode } from 'flowbite-svelte';
+	import { ArrowRightOutline } from 'flowbite-svelte-icons';
 
-	async function signInWithGoogle() {
-		try {
-			signInWithRedirect(auth, provider);
-		} catch (error) {
-			if (error instanceof FirebaseError) {
-				console.log(error);
-			}
-		}
-	}
-	async function createNewUser(email: string, password: string) {
-		if (password === password2) {
-			try {
-				await createUserWithEmailAndPassword(auth, email, password);
-			} catch (error) {
-				console.error('Error creating new user: ', error);
-			}
-		}
-	}
-	async function loginUser(email: string, password: string) {
-		try {
-			await signInWithEmailAndPassword(auth, email, password);
-		} catch (error) {
-			console.error('Error logging in user: ', error);
-		}
-	}
+	let userId: string | null;
+	let userEmail: string | null;
+	onAuthStateChanged(auth, (user) => {
+		userId = user ? user.uid : null;
+		userEmail = user ? user.email : null;
+	});
 
-	let login = true;
-	let winOpen = false;
-	let email: string = '';
-	let password: string = '';
-	let password2: string = '';
-	function open() {
-		if (winOpen) {
-			winOpen = false;
-		} else {
-			winOpen = true;
-		}
-	}
-	function create() {
-		login = false;
+	const approvedUsers: string[] = [];
+
+	onMount(async () => {
+		const querySnapshot = await getDocs(collection(db, 'approvedUsers'));
+		querySnapshot.docs.forEach((doc) => {
+			approvedUsers.push(doc.data().email);
+		});
+	});
+
+	function login() {
+		const provider = new GoogleAuthProvider();
+		signInWithPopup(auth, provider)
+			.then((result) => {
+				// ユーザーが承認されたリストに存在するかチェック
+				if (result.user && result.user.email && approvedUsers.includes(result.user.email)) {
+					console.log('ログイン成功');
+				} else {
+					console.log('このユーザーは承認されていません');
+					auth.signOut();
+				}
+			})
+			.catch((error) => {
+				console.log('ログイン失敗', error);
+			});
 	}
 </script>
 
-<section class="flex justify-center">
-	<div class="mt-20 border border-gray-500 rounded bg-gray-200 py-1 px-2">
-		<button on:click={open}>ログイン / 新規作成</button>
-	</div>
-	{#if winOpen}
-		<div id="page">
-			<input type="text" placeholder="e-mail" name="email" bind:value={email} />
-			<input type="text" placeholder="password" name="password" bind:value={password} />
-			{#if login}
-				<button on:click={() => loginUser(email, password)}>ログイン</button>
-				<button on:click={create}>新規作成</button>
-				<button on:click={signInWithGoogle}>Sign in with Google</button>
-			{:else}
-				<p>確認のためもう一度入力してください</p>
-				<input type="text" placeholder="password" name="password" bind:value={password2} />
-				<button on:click={() => createNewUser(email, password)}>ログイン</button>
-			{/if}
-		</div>
+<div class="container p-12">
+	<Heading class="text-2xl mb-4 font-bold tracking-tight text-gray-900 dark:text-white">Account</Heading>
+	{#if userId}
+		<Card class="gap-2">
+			<Heading class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+				ログイン済み
+			</Heading>
+			<P>ユーザー: {userEmail}</P>
+			<Button class="w-fit" on:click={() => auth.signOut()}>
+				Logout
+			</Button>
+		</Card>
+	{:else}
+		<Card class="gap-2">
+			<Heading class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Guest</Heading>
+			<Button class="w-fit" on:click={login}>
+				Read more <ArrowRightOutline class="ms-2 h-6 w-6 text-white" />
+			</Button>
+		</Card>
 	{/if}
-</section>
+	<Heading class="mt-8 mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Theme</Heading>
+	<div class="flex items-center gap-4">
+		<P>Dark mode</P>
+		<DarkMode />
+	</div>
+</div>
