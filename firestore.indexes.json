@@ -1,0 +1,45 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "storage",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "group",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "num",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "term",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "termH",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "zone",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "wishlist",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "uid",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
