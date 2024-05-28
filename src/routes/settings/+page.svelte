@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { authStore } from '$lib/store';
 	import { auth, db } from '$lib/firebase';
 	import { collection, getDocs } from 'firebase/firestore';
 	import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
@@ -9,6 +10,7 @@
 	let userId: string | null;
 	let userEmail: string | null;
 	onAuthStateChanged(auth, (user) => {
+		authStore.set({ loggedIn: !!user, user: user });
 		userId = user ? user.uid : null;
 		userEmail = user ? user.email : null;
 	});
@@ -41,26 +43,30 @@
 </script>
 
 <div class="container p-12">
-	<Heading class="text-2xl mb-4 font-bold tracking-tight text-gray-900 dark:text-white">Account</Heading>
+	<Heading class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+		>Account</Heading
+	>
 	{#if userId}
 		<Card class="gap-2">
 			<Heading class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 				ログイン済み
 			</Heading>
 			<P>ユーザー: {userEmail}</P>
-			<Button class="w-fit" on:click={() => auth.signOut()}>
-				Logout
-			</Button>
+			<Button class="w-fit" on:click={() => auth.signOut()}>Logout</Button>
 		</Card>
 	{:else}
 		<Card class="gap-2">
-			<Heading class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Guest</Heading>
+			<Heading class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+				>Guest</Heading
+			>
 			<Button class="w-fit" on:click={login}>
 				Login <ArrowRightOutline class="ms-2 h-6 w-6 text-white" />
 			</Button>
 		</Card>
 	{/if}
-	<Heading class="mt-8 mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Theme</Heading>
+	<Heading class="mb-4 mt-8 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+		>Theme</Heading
+	>
 	<div class="flex items-center gap-4">
 		<P>Dark mode</P>
 		<DarkMode />
