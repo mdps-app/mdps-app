@@ -9,7 +9,8 @@
 		deleteDoc,
 		doc
 	} from 'firebase/firestore';
-	import { db } from '$lib/firebase';
+	import { db, type Item } from '$lib/firebase';
+	import { navigate } from 'svelte-routing';
 	import {
 		Heading,
 		Table,
@@ -18,21 +19,9 @@
 		TableBodyRow,
 		TableHead,
 		TableHeadCell,
-		TableSearch,
         Input,
         Select
 	} from 'flowbite-svelte';
-
-	type Item = {
-		[key: string]: any;
-		id?: string;
-		name: string;
-		group: "暮らし" | "衛生" | "食品関連" | "衣類" | "安全" | "トイレ" | "";
-		num: number;
-		term: string;
-		termH: string;
-		zone: string;
-	};
 
 	let itemName: string = '';
 	let storage: Item[] = [];
@@ -120,7 +109,7 @@
         <Input bind:value={searchTerm} placeholder="Item name" class="mb-1" />
         <Select bind:value={itemName} items={group} class="mb-1"/>
     </div>
-	<Table class="table w-full overflow-auto">
+	<Table class="table w-full overflow-auto" hoverable={true} shadow>
 		<TableHead class="sticky top-0 z-10 bg-gray-200">
 			<TableHeadCell class="cursor-pointer" on:click={() => sortData('name')}>Name</TableHeadCell>
 			<TableHeadCell >Group</TableHeadCell>
@@ -140,7 +129,7 @@
 					<TableBodyCell>{item.termH}</TableBodyCell>
 					<TableBodyCell>{item.zone}</TableBodyCell>
 					<TableBodyCell>
-						<button on:click={() => delItem(item)}>Delete</button>
+						<button on:click={() => (location.href = `/database/${item.id}`)}>More</button>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}

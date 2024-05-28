@@ -27,7 +27,7 @@
 <style>
 	:global(body) {
 		@apply bg-gray-50 dark:bg-gray-600;
-		width: 100vw;
+		width: 100%;
 		height: calc(100vh - 64px);
 	}
 </style>

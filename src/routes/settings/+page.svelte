@@ -56,7 +56,7 @@
 		<Card class="gap-2">
 			<Heading class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Guest</Heading>
 			<Button class="w-fit" on:click={login}>
-				Read more <ArrowRightOutline class="ms-2 h-6 w-6 text-white" />
+				Login <ArrowRightOutline class="ms-2 h-6 w-6 text-white" />
 			</Button>
 		</Card>
 	{/if}

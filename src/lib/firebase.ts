@@ -19,6 +19,17 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_MEASUREMENT_ID
 };
 
+export type Item = {
+  [key: string]: any;
+  id?: string;
+  name: string;
+  group: "暮らし" | "衛生" | "食品関連" | "衣類" | "安全" | "トイレ" | "";
+  num: number;
+  term: string;
+  termH: string;
+  zone: string;
+};
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();

@@ -22,6 +22,7 @@
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/eslint": "^8.56.0",
+		"@types/qrcode": "^1.5.5",
 		"@typescript-eslint/eslint-plugin": "^7.0.0",
 		"@typescript-eslint/parser": "^7.0.0",
 		"autoprefixer": "^10.4.19",
@@ -55,6 +56,8 @@
 		"firebase-functions": "^5.0.1",
 		"firebase-tools": "^13.10.1",
 		"icones": "^1.0.0",
-		"scss": "^0.2.4"
+		"qrcode": "^1.5.3",
+		"scss": "^0.2.4",
+		"svelte-routing": "^2.13.0"
 	}
 }
