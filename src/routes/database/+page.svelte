@@ -11,8 +11,8 @@
 	} from 'firebase/firestore';
 	import { db, type Item } from '$lib/firebase';
 	import { getAuth, onAuthStateChanged } from 'firebase/auth';
-	import { onMount } from 'svelte';
-	import { authStore } from '$lib/store';
+	import type { PageData } from './$types';
+	import { afterUpdate, onMount } from 'svelte';
 	import {
 		Heading,
 		Table,
@@ -33,11 +33,16 @@
 
 	let auth: any = null;
 
-	onMount(() => {
+	export let data: PageData;
+	let storage: Item[] = [];
+
+	onMount(async () => {
 		const firebaseAuth = getAuth();
 		onAuthStateChanged(firebaseAuth, (user) => {
 			auth = user;
 		});
+
+		storage = await data.props.items;
 	});
 
 	let itemName: string = '';
@@ -46,8 +51,6 @@
 	let itemTerm: string = '';
 	let itemTermH: string = '';
 	let itemZone: string = '';
-
-	let storage: Item[] = [];
 
 	let createModal = false;
 
@@ -70,22 +73,6 @@
 		deleteDoc(doc(db, 'storage', item.id));
 	}
 
-	onSnapshot(query(collection(db, 'storage'), orderBy('name')), (snapshot: QuerySnapshot): any => {
-		storage = snapshot.docs.map((doc) => {
-			const data = doc.data();
-			const item: Item = {
-				id: doc.id,
-				name: data.name,
-				group: data.group,
-				num: data.num,
-				term: data.term,
-				termH: data.termH,
-				zone: data.zone
-			};
-			return item;
-		});
-	});
-
 	function isWithinOneYear(dateStr: string | number | Date) {
 		const date = new Date(dateStr);
 		const now = new Date();
@@ -104,7 +91,7 @@
 	}
 
 	let searchTerm: string = '';
-	let sortState = { key: 'defaultKey', direction: 'asc' }; // 並び替えの状態
+	let sortState = { key: 'defaultKey', direction: 'asc' };
 
 	function sortData(key: string) {
 		if (sortState.key === key) {
