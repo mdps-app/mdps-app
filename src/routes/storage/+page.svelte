@@ -42,44 +42,47 @@
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
-		const id = window.location.hash.substring(1);
+			const urlParams = new URLSearchParams(window.location.search);
+			const id = urlParams.get('id');
 
-		onSnapshot(
-			query(collection(db, 'storage'), orderBy('name')),
-			(snapshot: QuerySnapshot): any => {
-				storage = snapshot.docs.map((doc) => {
-					const data = doc.data();
-					const item: Item = {
-						id: doc.id,
-						name: data.name,
-						group: data.group,
-						num: data.num,
-						term: data.term,
-						termH: data.termH,
-						zone: data.zone
-					};
-					return item;
-				});
+			onSnapshot(
+				query(collection(db, 'storage'), orderBy('name')),
+				(snapshot: QuerySnapshot): any => {
+					storage = snapshot.docs.map((doc) => {
+						const data = doc.data();
+						const item: Item = {
+							id: doc.id,
+							name: data.name,
+							group: data.group,
+							num: data.num,
+							term: data.term,
+							termH: data.termH,
+							zone: data.zone
+						};
+						return item;
+					});
 
-				matchedItem = storage.find((item) => item.id === id);
+					matchedItem = storage.find((item) => item.id === id);
 
-				if (matchedItem) {
-					itemName = matchedItem.name;
-					itemGroup = matchedItem.group;
-					itemNum = matchedItem.num;
-					itemTerm = matchedItem.term ? new Date(matchedItem.term).toISOString().split('T')[0] : '';
-					itemTermH = matchedItem.termH
-						? new Date(matchedItem.termH).toISOString().split('T')[0]
-						: '';
-					itemZone = matchedItem.zone;
+					if (matchedItem) {
+						itemName = matchedItem.name;
+						itemGroup = matchedItem.group;
+						itemNum = matchedItem.num;
+						itemTerm = matchedItem.term
+							? new Date(matchedItem.term).toISOString().split('T')[0]
+							: '';
+						itemTermH = matchedItem.termH
+							? new Date(matchedItem.termH).toISOString().split('T')[0]
+							: '';
+						itemZone = matchedItem.zone;
+					}
 				}
-			}
-		);
+			);
 
-		if (typeof window !== 'undefined') {
-			quCodeUrl = await QRCode.toDataURL(window.location.href);
+			if (typeof window !== 'undefined') {
+				quCodeUrl = await QRCode.toDataURL(window.location.href);
+			}
 		}
-	}
 	});
 
 	let editMordal = false;

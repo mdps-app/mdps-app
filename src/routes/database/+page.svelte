@@ -11,7 +11,7 @@
 	} from 'firebase/firestore';
 	import { db, type Item } from '$lib/firebase';
 	import { getAuth, onAuthStateChanged } from 'firebase/auth';
-	import { afterUpdate, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import {
 		Heading,
 		Table,
@@ -196,7 +196,7 @@
 					<TableBodyCell>{item.termH}</TableBodyCell>
 					<TableBodyCell>{item.zone}</TableBodyCell>
 					<TableBodyCell>
-						<button on:click={() => (location.href = `/database/storage#${item.id}`)}>More</button>
+						<Button color="alternative" href='storage?id={item.id}'>More</Button>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
