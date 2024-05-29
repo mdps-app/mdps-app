@@ -196,7 +196,7 @@
 					<TableBodyCell>{item.termH}</TableBodyCell>
 					<TableBodyCell>{item.zone}</TableBodyCell>
 					<TableBodyCell>
-						<Button color="alternative" href='storage?id={item.id}'>More</Button>
+						<Button color="alternative" href='database/storage?id={item.id}'>More</Button>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}

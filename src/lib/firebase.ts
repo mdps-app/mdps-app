@@ -10,24 +10,24 @@ import { getFunctions } from 'firebase/functions';
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
-  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID,
-  measurementId: import.meta.env.VITE_MEASUREMENT_ID
+    apiKey: import.meta.env.VITE_API_KEY,
+    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_APP_ID,
+    measurementId: import.meta.env.VITE_MEASUREMENT_ID
 };
 
 export type Item = {
-  [key: string]: any;
-  id?: string;
-  name: string;
-  group: "暮らし" | "衛生" | "食品関連" | "衣類" | "安全" | "トイレ" | "";
-  num: number;
-  term: string;
-  termH: string;
-  zone: string;
+    [key: string]: any;
+    id?: string;
+    name: string;
+    group: "暮らし" | "衛生" | "食品関連" | "衣類" | "安全" | "トイレ" | "";
+    num: number;
+    term: string;
+    termH: string;
+    zone: string;
 };
 
 // Initialize Firebase

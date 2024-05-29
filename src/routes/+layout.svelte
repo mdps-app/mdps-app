@@ -1,6 +1,6 @@
 <script>
 	import '../app.css';
-	import { BottomNav, BottomNavItem, Skeleton, ImagePlaceholder } from 'flowbite-svelte';
+	import { BottomNav, BottomNavItem } from 'flowbite-svelte';
 	import { HomeSolid, DatabaseSolid, MapPinSolid, UserSettingsSolid } from 'flowbite-svelte-icons';
 	import { page } from '$app/stores';
 	$: activeUrl = $page.url.pathname;
