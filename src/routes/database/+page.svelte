@@ -11,7 +11,6 @@
 	} from 'firebase/firestore';
 	import { db, type Item } from '$lib/firebase';
 	import { getAuth, onAuthStateChanged } from 'firebase/auth';
-	import type { PageData } from './$types';
 	import { afterUpdate, onMount } from 'svelte';
 	import {
 		Heading,
@@ -33,7 +32,6 @@
 
 	let auth: any = null;
 
-	export let data: PageData;
 	let storage: Item[] = [];
 
 	onMount(async () => {
@@ -41,8 +39,21 @@
 		onAuthStateChanged(firebaseAuth, (user) => {
 			auth = user;
 		});
+	});
 
-		storage = await data.props.items;
+	onSnapshot(query(collection(db, 'storage'), orderBy('name')), (snapshot: QuerySnapshot) => {
+		storage = snapshot.docs.map((doc) => {
+			const data = doc.data();
+			return {
+				id: doc.id,
+				name: data.name,
+				group: data.group,
+				num: data.num,
+				term: data.term,
+				termH: data.termH,
+				zone: data.zone
+			};
+		});
 	});
 
 	let itemName: string = '';
@@ -185,7 +196,7 @@
 					<TableBodyCell>{item.termH}</TableBodyCell>
 					<TableBodyCell>{item.zone}</TableBodyCell>
 					<TableBodyCell>
-						<button on:click={() => (location.href = `/database/${item.id}`)}>More</button>
+						<button on:click={() => (location.href = `/database/storage#${item.id}`)}>More</button>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}

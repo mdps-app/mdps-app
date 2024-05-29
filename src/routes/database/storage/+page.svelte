@@ -42,8 +42,8 @@
 	let itemZone: string;
 
 	onMount(async () => {
-		const { params } = await $page;
-		const id = params.id;
+		if (typeof window !== 'undefined') {
+		const id = window.location.hash.substring(1);
 
 		onSnapshot(
 			query(collection(db, 'storage'), orderBy('name')),
@@ -80,6 +80,7 @@
 		if (typeof window !== 'undefined') {
 			quCodeUrl = await QRCode.toDataURL(window.location.href);
 		}
+	}
 	});
 
 	let editMordal = false;
