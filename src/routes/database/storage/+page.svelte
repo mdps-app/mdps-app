@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
-	import { page } from '$app/stores';
-	import { auth, db, type Item } from '$lib/firebase';
+	import { db, type Item } from '$lib/firebase';
 	import {
 		QuerySnapshot,
 		collection,
