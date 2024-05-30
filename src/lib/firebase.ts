@@ -23,7 +23,7 @@ export type Item = {
     [key: string]: any;
     id?: string;
     name: string;
-    group: "暮らし" | "衛生" | "食品関連" | "衣類" | "安全" | "トイレ" | "";
+    group: string;
     num: number;
     term: string;
     termH: string;

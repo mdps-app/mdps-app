@@ -5,6 +5,7 @@
 	import {
 		QuerySnapshot,
 		collection,
+		deleteDoc,
 		doc,
 		onSnapshot,
 		orderBy,
@@ -13,12 +14,7 @@
 	} from 'firebase/firestore';
 	import {
 		Heading,
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell,
+		Card,
 		Img,
 		Skeleton,
 		ImagePlaceholder,
@@ -28,17 +24,29 @@
 		Select
 	} from 'flowbite-svelte';
 	import Map from '$lib/component/Map.svelte';
+	import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 	let storage: Item[] = [];
+	let groups: { value: string; name: string }[] = [];
 	let matchedItem: Item | undefined;
 	let quCodeUrl: any = '';
 
 	let itemName: string;
-	let itemGroup: '' | '暮らし' | '衛生' | '食品関連' | '衣類' | '安全' | 'トイレ';
+	type GroupName = '' | (typeof groups)[number]['name'];
+	let itemGroup: GroupName = '';
 	let itemNum: number;
 	let itemTerm: string;
 	let itemTermH: string;
 	let itemZone: string;
+
+	let auth: any = null;
+
+	onMount(async () => {
+		const firebaseAuth = getAuth();
+		onAuthStateChanged(firebaseAuth, (user) => {
+			auth = user;
+		});
+	});
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
@@ -79,6 +87,16 @@
 				}
 			);
 
+			onSnapshot(query(collection(db, 'groups'), orderBy('name')), (snapshot: QuerySnapshot) => {
+				groups = snapshot.docs.map((doc) => {
+					const data = doc.data();
+					return {
+						value: doc.id,
+						name: data.name
+					};
+				});
+			});
+
 			if (typeof window !== 'undefined') {
 				quCodeUrl = await QRCode.toDataURL(window.location.href);
 			}
@@ -86,16 +104,6 @@
 	});
 
 	let editMordal = false;
-
-	let group = [
-		{ value: '暮らし', name: '暮らし' },
-		{ value: '衛生', name: '衛生' },
-		{ value: '食品関連', name: '食品関連' },
-		{ value: '衣類', name: '衣類' },
-		{ value: '安全', name: '安全' },
-		{ value: 'トイレ', name: 'トイレ' },
-		{ value: '', name: '未分類' }
-	];
 
 	function updateItem(item: Item) {
 		if (!item.id) return;
@@ -110,64 +118,93 @@
 
 		updateDoc(doc(db, 'storage', item.id), newItem);
 	}
+
+	let delModal = false;
+
+	function delItem(item: Item) {
+		if (!item.id) return;
+		deleteDoc(doc(db, 'storage', item.id));
+	}
 </script>
 
 {#if matchedItem}
-	<Modal title="Add new item" bind:open={editMordal} autoclose>
+	<Modal title="Update item" bind:open={editMordal} autoclose>
 		<Input bind:value={itemName} placeholder="Item name" />
-		<Select bind:value={itemGroup} items={group} placeholder="Group" />
+		<Select bind:value={itemGroup} items={groups} placeholder="Group" />
 		<Input bind:value={itemNum} placeholder="Number" />
 		<Input bind:value={itemTerm} placeholder="Term" type="date" />
 		<Input bind:value={itemTermH} placeholder="TermH" type="date" />
 		<Input bind:value={itemZone} placeholder="Zone" />
 		<svelte:fragment slot="footer">
-			<Button on:click={() => matchedItem && updateItem(matchedItem)}>Add item</Button>
+			<Button on:click={() => matchedItem && updateItem(matchedItem)}>Update item</Button>
+			<Button color="alternative">cancel</Button>
+		</svelte:fragment>
+	</Modal>
+{/if}
+{#if delModal}
+	<Modal title="Delete item" bind:open={delModal} autoclose>
+		<p>本当に削除しますか？</p>
+		<svelte:fragment slot="footer">
+			<Button on:click={() => matchedItem && delItem(matchedItem)}>Delete</Button>
 			<Button color="alternative">cancel</Button>
 		</svelte:fragment>
 	</Modal>
 {/if}
 
-<div class="p-12">
+<div class="p-12 w-full">
 	<Heading class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
 		>Database</Heading
 	>
-	<Table class="table w-full overflow-auto" hoverable={true} shadow>
-		<TableHead>
-			<TableHeadCell>Name</TableHeadCell>
-			<TableHeadCell>Group</TableHeadCell>
-			<TableHeadCell>Number</TableHeadCell>
-			<TableHeadCell>Term</TableHeadCell>
-			<TableHeadCell>TermH</TableHeadCell>
-			<TableHeadCell>Zone</TableHeadCell>
-			<TableHeadCell></TableHeadCell>
-		</TableHead>
-		<TableBody>
-			<TableBodyRow>
-				{#if matchedItem}
-					<TableBodyCell>{matchedItem.name}</TableBodyCell>
-					<TableBodyCell>{matchedItem.group}</TableBodyCell>
-					<TableBodyCell>{matchedItem.num}</TableBodyCell>
-					<TableBodyCell>{matchedItem.term}</TableBodyCell>
-					<TableBodyCell>{matchedItem.termH}</TableBodyCell>
-					<TableBodyCell>{matchedItem.zone}</TableBodyCell>
-					<TableBodyCell>
-						<button on:click={() => (editMordal = true)}>Edit</button>
-					</TableBodyCell>
-				{:else}
-					<TableBodyCell></TableBodyCell>
-				{/if}
-			</TableBodyRow>
-		</TableBody>
-	</Table>
-	{#if matchedItem}
-		<div class="mt-10 flex flex-col gap-4 sm:flex-row">
-			<Map point={matchedItem.zone} />
-			<Img src={quCodeUrl} alt="QRコード" class="rounded-lg shadow-xl dark:shadow-gray-800" />
-		</div>
-	{:else}
-		<div class="mt-10">
-			<Skeleton class="h-64 w-64" />
-			<ImagePlaceholder class="h-64 w-64" />
-		</div>
-	{/if}
+	<div class="w-full lg:flex gap-5">
+		{#if matchedItem}
+			<Card class="mb-5">
+				<Heading class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+					>{matchedItem.name}</Heading
+				>
+				<div class="flex flex-col mb-4">
+					<div class="flex items-center">
+						<p class="text-gray-600 dark:text-gray-400">グループ:</p>
+						<p class="ml-2 text-gray-900 dark:text-white">{matchedItem.group}</p>
+					</div>
+					<div class="flex items-center">
+						<p class="text-gray-600 dark:text-gray-400">個数:</p>
+						<p class="ml-2 text-gray-900 dark:text-white">{matchedItem.num}</p>
+					</div>
+					<div class="flex items-center">
+						<p class="text-gray-600 dark:text-gray-400">保存期間:</p>
+						<p class="ml-2 text-gray-900 dark:text-white">{matchedItem.term}</p>
+					</div>
+					<div class="flex items-center">
+						<p class="text-gray-600 dark:text-gray-400">保保管期間:</p>
+						<p class="ml-2 text-gray-900 dark:text-white">{matchedItem.termH}</p>
+					</div>
+					<div class="flex items-center">
+						<p class="text-gray-600 dark:text-gray-400">保保管区域:</p>
+						<p class="ml-2 text-gray-900 dark:text-white">{matchedItem.zone}</p>
+					</div>
+				</div>
+				<div>
+					<Heading class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+						>QR code</Heading
+					>
+					<Img src={quCodeUrl} alt="QR code" class="w-64 h-64" />
+				</div>
+				<div class="flex gap-4 mt-4">
+					{#if auth}
+						<Button on:click={() => (editMordal = true)}>Edit</Button>
+						<Button on:click={() => (delModal = true)}>Delete</Button>
+					{:else}
+						<Button disabled>Edit</Button>
+						<Button disabled>Delete</Button>
+					{/if}
+				</div>
+			</Card>
+			<Map className="lg:flex-grow" point={matchedItem.zone} />
+		{:else}
+			<div class="mt-10">
+				<Skeleton class="h-64 w-64" />
+				<ImagePlaceholder class="h-64 w-64" />
+			</div>
+		{/if}
+	</div>
 </div>
