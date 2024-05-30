@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 	import { authStore } from '$lib/store';
 	import { auth, db } from '$lib/firebase';
 	import { collection, getDocs } from 'firebase/firestore';
 	import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-	import { P, Heading, Card, Button, DarkMode } from 'flowbite-svelte';
-	import { ArrowRightOutline } from 'flowbite-svelte-icons';
+	import { P, Heading, Card, Button, DarkMode, Toast } from 'flowbite-svelte';
+	import { ArrowRightOutline, CheckCircleSolid, CloseCircleSolid } from 'flowbite-svelte-icons';
 
 	let userId: string | null;
 	let userEmail: string | null;
@@ -24,6 +25,8 @@
 		});
 	});
 
+	let loginSuccess = false;
+
 	function login() {
 		const provider = new GoogleAuthProvider();
 		signInWithPopup(auth, provider)
@@ -41,6 +44,22 @@
 			});
 	}
 </script>
+
+<Toast color="green" bind:open={loginSuccess}>
+	<svelte:fragment slot="icon">
+		<CheckCircleSolid class="w-5 h-5" />
+		<span class="sr-only">Check icon</span>
+	</svelte:fragment>
+	Item moved successfully.
+</Toast>
+
+<Toast color="red">
+	<svelte:fragment slot="icon">
+		<CloseCircleSolid class="w-5 h-5" />
+		<span class="sr-only">Error icon</span>
+	</svelte:fragment>
+	Item has been deleted.
+</Toast>
 
 <div class="container p-12">
 	<Heading class="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
